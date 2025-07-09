@@ -1,4 +1,379 @@
 <!DOCTYPE html>
-<!-- full HTML content from user -->
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Toko Cut4nn</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+    }
 
-<!-- [HTML content was already shared in full and inserted above] -->
+    #starsCanvas, .shooting-stars canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      display: block;
+    }
+
+    .stars {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      box-shadow:
+        1000px 200px white,
+        500px 300px white,
+        1200px 150px white,
+        700px 400px white,
+        900px 500px white;
+      animation: twinkling 2s infinite ease-in-out alternate;
+      z-index: 1;
+    }
+
+    @keyframes twinkling {
+      from { opacity: 0.5; }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      z-index: 5;
+      position: relative;
+      font-size: 2.5em;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #00faff, 0 0 20px #00faff;
+      }
+      to {
+        text-shadow: 0 0 20px #00faff, 0 0 40px #00faff;
+      }
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      z-index: 5;
+      position: relative;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 16px;
+      width: 300px;
+      box-shadow: 0 0 15px #00faff;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) rotateZ(-1deg);
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    button {
+      background-color: #00faff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: black;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    #cart {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 10px #00faff;
+      z-index: 10;
+    }
+
+    #whatsapp, #musicBtn, #showCartBtn, #resetCartBtn {
+      position: fixed;
+      background: #25d366;
+      padding: 12px 20px;
+      border-radius: 30px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      text-decoration: none;
+      box-shadow: 0 0 15px #25d366;
+      z-index: 10;
+    }
+
+    #whatsapp {
+      bottom: 20px;
+      right: 20px;
+      background: #25d366;
+    }
+
+    #musicBtn {
+      bottom: 20px;
+      left: 20px;
+      background-color: #00faff;
+      color: black;
+    }
+
+    #showCartBtn {
+      top: 70px;
+      right: 20px;
+      background: #ff5e5e;
+    }
+
+    #resetCartBtn {
+      top: 120px;
+      right: 20px;
+      background: #ffaa00;
+    }
+
+    #cartModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px #00faff;
+      z-index: 999;
+      max-width: 80%;
+    }
+
+    .particle {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: radial-gradient(circle, #fff, transparent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      animation: fly 1s linear forwards;
+    }
+
+    @keyframes fly {
+      to {
+        transform: translateY(-200px) scale(0.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starsCanvas"></canvas>
+  <div class="stars"></div>
+  <div class="shooting-stars"><canvas id="shootingCanvas"></canvas></div>
+
+  <div id="cart">🛒 Keranjang: <span id="cartCount">0</span></div>
+  <a id="whatsapp" href="#" target="_blank">Chat WhatsApp</a>
+  <button id="musicBtn" onclick="toggleMusic()">🎵 𝐓𝐄𝐊𝐀𝐍 𝐔𝐍𝐓𝐔𝐊 𝐌𝐄𝐌𝐔𝐓𝐀𝐑 𝐌𝐔𝐒𝐈𝐊</button>
+  <button id="showCartBtn" onclick="showCart()">📋 Lihat Keranjang</button>
+  <button id="resetCartBtn" onclick="resetCart()">🔄 Reset</button>
+
+  <div id="cartModal"></div>
+
+  <audio id="backgroundMusic" loop>
+    <source src="https://www.dropbox.com/scl/fi/zwnq2brvc98dshp3adro6/final.mp3?rlkey=tdgt6ne7y3jmzgei3f9mnn8v6&raw=1" type="audio/mpeg">
+  </audio>
+  <audio id="clickSound" src="https://www.dropbox.com/scl/fi/kxhml1hmeu5a9kgsqqtqa/cash.mp3?rlkey=362afu40fkujqdtykupakz4js&raw=1" type="audio/mpeg"></audio>
+
+  <h1>🌠 Galaxy Shop</h1>
+
+  <div class="container">
+    <div class="card">
+      <img src="https://files.catbox.moe/sco4ne.jpg" alt="Produk 1">
+      <h3>𝐉𝐀𝐒𝐁𝐔𝐆 𝐆𝐀𝐂𝐎𝐑𝐑 𝐗 𝐆𝐀𝐍𝐀𝐒𝐒</h3>
+      <p>𝐁𝐔𝐆 𝐈𝐍𝐈 𝐆𝐀𝐑𝐎𝐑𝐑 𝐃𝐀𝐍 𝐆𝐀𝐍𝐀𝐒...</p>
+      <button onclick="beli('𝐉𝐀𝐒𝐁𝐔𝐆 𝐆𝐀𝐂𝐎𝐑𝐑 𝐗 𝐆𝐀𝐍𝐀𝐒𝐒')">🛒 Beli</button>
+    </div>
+
+    <div class="card">
+      <img src="https://files.catbox.moe/engn94.jpeg" alt="Produk 2">
+      <h3>𝐏𝐀𝐍𝐄𝐋 𝐏𝐓𝐑𝐎𝐃𝐀𝐂𝐓𝐘𝐋</h3>
+      <p>🏷 Ram 1 GB = Rp 1.000<br>🏷 Ram 2 GB = Rp 2.000<br>🏷 Ram 3 GB = Rp 3.000<br>🏷 Ram 4 GB = Rp 4.000<br>🏷 Ram 5 GB = Rp 5.000<br>🏷 Ram 6 GB = Rp 6.000<br>🏷 Ram 7 GB = Rp 7.000<br>🏷 Ram 8 GB = Rp 8.000<br>🏷 Ram 9 GB = Rp 9.000<br>🏷 Ram Unli GB = Rp 5.000<br></p>
+      <button onclick="beli('𝐏𝐀𝐍𝐄𝐋 𝐏𝐓𝐑𝐎𝐃𝐀𝐂𝐓𝐘𝐋')">🛒 Beli</button>
+    </div>
+
+<div class="card">
+      <img src="https://files.catbox.moe/g58uj5.jpeg" alt="Produk 3">
+      <h3>NOKOS ALL NEGARA</h3>
+🏳️‍🌈🇦🇶🇦🇴🇦🇲🇦🇱🇦🇮🇦🇬🇦🇫🇦🇪🇦🇩🇦🇷🇧🇩🇧🇳🇧🇿🇨🇦🇧🇴🇧🇪🇦🇸🇦🇹🇧🇫🇧🇶🇨🇨🇨🇩🇧🇷🇧🇬🇦🇺🇦🇬🇦🇮🇦🇼🇧🇭🇧🇸🇨🇫🇯🇵🇲🇺🇲🇫🇲🇺🇲🇫🇲🇫🇱🇮🇱🇮🇰🇷🇯🇵🇱🇦🇯🇵🇬🇲🇬🇶🇩🇬🇬🇸🇫🇮🇫🇮🇬🇼</p>
+      <button onclick="beli('𝐍𝐎𝐊𝐎𝐒 𝐀𝐋𝐋 𝐍𝐄𝐆𝐀𝐑𝐀')">🛒 Beli</button>
+    </div>
+
+  <script>
+    const music = document.getElementById("backgroundMusic");
+    const btn = document.getElementById("musicBtn");
+
+    function toggleMusic() {
+      if (music.paused) {
+        music.play().then(() => btn.textContent = "⏸ Musik Sedang Berputar").catch(() => alert("Klik ulang tombol."));
+      } else {
+        music.pause();
+        btn.textContent = "🎵 𝐓𝐄𝐊𝐀𝐍 𝐔𝐍𝐓𝐔𝐊 𝐌𝐄𝐌𝐔𝐓𝐀𝐑 𝐌𝐔𝐒𝐈𝐊";
+      }
+    }
+
+    let cartCount = 0;
+    let cartItems = [];
+    const cartCountElement = document.getElementById('cartCount');
+    const whatsappLink = document.getElementById('whatsapp');
+    const clickSound = document.getElementById('clickSound');
+    const cartModal = document.getElementById("cartModal");
+
+    function beli(namaProduk) {
+      cartCount++;
+      cartItems.push(namaProduk);
+      cartCountElement.innerText = cartCount;
+      clickSound.play().catch(() => {});
+
+      const pesan = encodeURIComponent(`Halo! Saya ingin membeli:\n${cartItems.map(item => '- ' + item).join('\n')}`);
+      whatsappLink.href = `https://wa.me/6287761013232?text=${pesan}`;
+
+      spawnParticles(window.innerWidth / 2, window.innerHeight / 2);
+      shootingStars.push(createStar());
+    }
+
+    function spawnParticles(x, y) {
+      for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+      }
+    }
+
+    function showCart() {
+      cartModal.innerHTML = "<h3>🛒 Daftar Keranjang:</h3><ul>" +
+        cartItems.map(item => `<li>${item}</li>`).join("") + "</ul>";
+      cartModal.style.display = "block";
+      setTimeout(() => cartModal.style.display = "none", 4000);
+    }
+
+    function resetCart() {
+      cartCount = 0;
+      cartItems = [];
+      cartCountElement.innerText = cartCount;
+      whatsappLink.href = "#";
+      alert("Keranjang telah dikosongkan!");
+    }
+
+    // Bintang latar
+    const starsCanvas = document.getElementById("starsCanvas");
+    const starsCtx = starsCanvas.getContext("2d");
+    starsCanvas.width = window.innerWidth;
+    starsCanvas.height = window.innerHeight;
+
+    let stars = Array.from({ length: 100 }, () => ({
+      x: Math.random() * starsCanvas.width,
+      y: Math.random() * starsCanvas.height,
+      r: Math.random() * 1.5 + 0.5,
+      speed: Math.random() * 0.5 + 0.2
+    }));
+
+    function animateStarsBG() {
+      starsCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+      starsCtx.fillStyle = "white";
+      for (let s of stars) {
+        starsCtx.beginPath();
+        starsCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        starsCtx.fill();
+        s.y += s.speed;
+        if (s.y > starsCanvas.height) {
+          s.y = 0;
+          s.x = Math.random() * starsCanvas.width;
+        }
+      }
+      requestAnimationFrame(animateStarsBG);
+    }
+
+    animateStarsBG();
+
+    // Meteor
+    const canvas = document.getElementById("shootingCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let shootingStars = [];
+
+    function createStar() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height / 2,
+        length: Math.random() * 80 + 50,
+        speed: Math.random() * 6 + 6,
+        opacity: Math.random() * 0.5 + 0.3
+      };
+    }
+
+    function drawStar(star) {
+      const grad = ctx.createLinearGradient(star.x, star.y, star.x + star.length, star.y + star.length);
+      grad.addColorStop(0, "rgba(255,255,255," + star.opacity + ")");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.beginPath();
+      ctx.strokeStyle = grad;
+      ctx.moveTo(star.x, star.y);
+      ctx.lineTo(star.x + star.length, star.y + star.length);
+      ctx.stroke();
+    }
+
+    function animateMeteor() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (Math.random() < 0.05) shootingStars.push(createStar());
+      shootingStars.forEach((star, i) => {
+        drawStar(star);
+        star.x += star.speed;
+        star.y += star.speed;
+        if (star.x > canvas.width || star.y > canvas.height) shootingStars.splice(i, 1);
+      });
+      requestAnimationFrame(animateMeteor);
+    }
+
+    animateMeteor();
+
+    window.addEventListener("resize", () => {
+      starsCanvas.width = window.innerWidth;
+      starsCanvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    document.addEventListener('mousemove', e => {
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      document.querySelector('.stars').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+  </script>
+</body>
+  </html>
